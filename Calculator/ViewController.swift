@@ -76,7 +76,7 @@ class ViewController: UIViewController {
         }
         
         if operation != .none {
-            secondNumber = convertStringToDouble(str: enterNumberLabel.text ?? "")
+            secondNumber = convertStringToDecimal(enterNumberLabel.text)
         }
     }
     
@@ -89,7 +89,7 @@ class ViewController: UIViewController {
         operation = Operations.convertToOperation(from: buttonTitle)
   
         if operation != .none {
-            firstNumber = convertStringToDouble(str: enterNumberLabel.text ?? "")
+            firstNumber = convertStringToDecimal(enterNumberLabel.text)
             enterNumberLabel.text = ""
             isDoubleNumber = false
         }
@@ -123,7 +123,7 @@ class ViewController: UIViewController {
         operation = .none
         
         if let resultText = result {
-            if isDoubleNumber(number: resultText) {
+            if isDoubleNumber(resultText) {
                 var str: String = ""
                 for char in String(resultText) {
                     if char == "." {
@@ -148,32 +148,27 @@ class ViewController: UIViewController {
     
     func clear () {
         enterNumberLabel.text = "0"
+        firstNumber = nil
+        secondNumber = nil
+        result = nil
         isDoubleNumber = false
         operation = .none
     }
     
-    func convertStringToDouble (str: String) -> Double {
-        var tempString = ""
-        var newDouble: Double
-        for char in str {
-            if char == "," {
-                tempString += "."
-            } else {
-                tempString += String(char)
-            }
+    func convertStringToDecimal (_ value: String?) -> Double? {
+        
+        guard let stringValue = value else {
+            return nil
         }
         
-        newDouble = Double(tempString) ?? 0.0
-        return newDouble
+        let tempString = stringValue.replacingOccurrences(of: ",", with: ".")
+        
+        return Double(tempString)
     }
     
-    func isDoubleNumber (number: Double) -> Bool {
+    func isDoubleNumber (_ number: Double) -> Bool {
         
-        if number - Double(Int(number)) == 0 {
-            return false
-        }
-        
-        return true
+        return !(number.truncatingRemainder(dividingBy: 1) == 0)
     }
     
 }

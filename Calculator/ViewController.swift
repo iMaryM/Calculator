@@ -122,20 +122,18 @@ class ViewController: UIViewController {
         
         operation = .none
         
-        if let resultText = result {
-            if isDoubleNumber(resultText) {
-                var str: String = ""
-                for char in String(resultText) {
-                    if char == "." {
-                        str += ","
-                    } else {
-                        str += String(char)
-                    }
-                }
-                enterNumberLabel.text = "\(str)"
-            } else {
-                enterNumberLabel.text = "\(Int(resultText))"
-            }
+        guard let result = result else {
+            isDoubleNumber = false
+            return
+        }
+
+        let resultDecimal = Decimal(result)
+        
+        if isDoubleNumber(result) {
+            let newString = resultDecimal.formatted().replacingOccurrences(of: ".", with: ",")
+            enterNumberLabel.text = "\(newString)"
+        } else {
+            enterNumberLabel.text = "\(Int(result))"
         }
         
         isDoubleNumber = false

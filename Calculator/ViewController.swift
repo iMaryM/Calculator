@@ -33,7 +33,7 @@ import UIKit
 class ViewController: UIViewController {
     
     @IBOutlet weak var enterNumberLabel: UILabel!
-    var isDoubleNumber = false
+
     var firstNumber: Double?
     var secondNumber: Double?
     var result: Double?
@@ -52,32 +52,39 @@ class ViewController: UIViewController {
             return
         }
         
+        var numberText = labelText
+        
         if result != nil || labelText == "Error" {
             enterNumberLabel.text = "0"
             result = nil
         }
         
-        let numberText = enterNumberLabel.text ?? ""
+        if operation != .none && secondNumber == nil {
+            enterNumberLabel.text  = "0"
+        }
+        
+        numberText = enterNumberLabel.text ?? ""
         
         if enterNumberLabel.text == "0" {
-            if titleLabelText == ",", !isDoubleNumber {
+            if titleLabelText == ",", (numberText.filter({$0 == ","}).count < 1) {
                 enterNumberLabel.text  = numberText + titleLabelText
-                isDoubleNumber = true
             } else {
                 enterNumberLabel.text = titleLabelText
             }
         } else {
             if titleLabelText != "," {
                 enterNumberLabel.text  = numberText + titleLabelText
-            } else if titleLabelText == ",", !isDoubleNumber {
+            } else if titleLabelText == ",", (numberText.filter({$0 == ","}).count < 1) {
                 enterNumberLabel.text  = numberText + titleLabelText
-                isDoubleNumber = true
             }
         }
         
         if operation != .none {
-            secondNumber = convertStringToDecimal(enterNumberLabel.text)
+            secondNumber = convertStringToDouble(enterNumberLabel.text)
+        } else {
+            firstNumber = convertStringToDouble(enterNumberLabel.text)
         }
+    
     }
     
     @IBAction func operationAction(_ sender: UIButton) {
@@ -87,32 +94,26 @@ class ViewController: UIViewController {
         }
         
         operation = Operations.convertToOperation(from: buttonTitle)
-  
-        if operation != .none {
-            firstNumber = convertStringToDecimal(enterNumberLabel.text)
-            enterNumberLabel.text = ""
-            isDoubleNumber = false
-        }
         
     }
     
     @IBAction func showResult(_ sender: UIButton) {
         
-        guard let firstNumber = firstNumber,
-              let secondNumber = secondNumber else {
+        guard let firstNumberO = firstNumber,
+              let secondNumberO = secondNumber else {
             return
         }
 
         switch operation {
         case .plus:
-            result = firstNumber + secondNumber
+            result = firstNumberO + secondNumberO
         case .minus:
-            result = firstNumber - secondNumber
+            result = firstNumberO - secondNumberO
         case .multiplication:
-            result = firstNumber * secondNumber
+            result = firstNumberO * secondNumberO
         case .division:
             if secondNumber != 0 {
-                result = firstNumber / secondNumber
+                result = firstNumberO / secondNumberO
             } else {
                 enterNumberLabel.text = "Error"
             }
@@ -123,7 +124,6 @@ class ViewController: UIViewController {
         operation = .none
         
         guard let result = result else {
-            isDoubleNumber = false
             return
         }
 
@@ -136,7 +136,8 @@ class ViewController: UIViewController {
             enterNumberLabel.text = "\(Int(result))"
         }
         
-        isDoubleNumber = false
+        secondNumber = nil
+        firstNumber = result
     
     }
     
@@ -149,11 +150,10 @@ class ViewController: UIViewController {
         firstNumber = nil
         secondNumber = nil
         result = nil
-        isDoubleNumber = false
         operation = .none
     }
     
-    func convertStringToDecimal (_ value: String?) -> Double? {
+    func convertStringToDouble (_ value: String?) -> Double? {
         
         guard let stringValue = value else {
             return nil
